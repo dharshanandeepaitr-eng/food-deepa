@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Foodie Express - Food Delivery</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+body{
+    background:#fffaf5;
+    color:#292929;
+}
+
+header{
+    background:white;
+    padding:18px 7%;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    box-shadow:0 2px 10px #ddd;
+    position:sticky;
+    top:0;
+    z-index:10;
+    flex-wrap:wrap;
+    gap:15px;
+}
+
+.logo{
+    color:#fc531c;
+    font-size:27px;
+    font-weight:bold;
+}
+
+header input{
+    padding:12px;
+    width:300px;
+    border:1px solid #ddd;
+    border-radius:8px;
+    outline:none;
+}
+
+.cart-btn{
+    background:#fc531c;
+    color:white;
+    padding:12px 20px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.hero{
+    margin:30px 7%;
+    padding:65px 40px;
+    background:linear-gradient(120deg,#ff6b35,#ffb347);
+    color:white;
+    border-radius:18px;
+}
+
+.hero h1{
+    font-size:40px;
+    margin-bottom:15px;
+}
+
+.hero p{
+    font-size:17px;
+}
+
+.hero button{
+    margin-top:20px;
+    padding:13px 25px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:bold;
+    color:#f4511e;
+    background:white;
+}
+
+section{
+    padding:20px 7%;
+}
+
+.section-title{
+    font-size:25px;
+    margin-bottom:22px;
+}
+
+.categories{
+    display:flex;
+    gap:20px;
+    overflow-x:auto;
+    padding-bottom:15px;
+}
+
+.category{
+    min-width:100px;
+    text-align:center;
+    cursor:pointer;
+    padding:15px;
+    background:white;
+    border-radius:12px;
+    border:1px solid #eee;
+}
+
+.category span{
+    font-size:35px;
+    display:block;
+    margin-bottom:8px;
+}
+
+.category:hover{
+    background:#fff0e9;
+}
+
+.food-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+    gap:25px;
+}
+
+.food-card{
+    background:white;
+    border-radius:15px;
+    overflow:hidden;
+    box-shadow:0 3px 15px #ddd;
+    transition:0.3s;
+}
+
+.food-card:hover{
+    transform:translateY(-5px);
+}
+
+.food-card img{
+    width:100%;
+    height:170px;
+    object-fit:cover;
+}
+
+.food-info{
+    padding:17px;
+}
+
+.food-info h3{
+    margin-bottom:8px;
+}
+
+.rating{
+    color:green;
+    font-size:14px;
+    margin:8px 0;
+}
+
+.price-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:15px;
+}
+
+.add-btn{
+    background:#fc531c;
+    color:white;
+    padding:10px 17px;
+    border:none;
+    border-radius:7px;
+    cursor:pointer;
+}
+
+.add-btn:hover{
+    background:#d83c0d;
+}
+
+.restaurant{
+    font-size:13px;
+    color:#777;
+}
+
+#cartSection{
+    display:none;
+    background:white;
+    margin:25px 7%;
+    padding:25px;
+    border-radius:15px;
+    box-shadow:0 3px 15px #ddd;
+}
+
+.cart-item{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    padding:15px 0;
+    border-bottom:1px solid #eee;
+}
+
+.quantity button{
+    padding:5px 10px;
+    cursor:pointer;
+    border:1px solid #ddd;
+    background:#fff5ef;
+}
+
+.checkout{
+    background:#fc531c;
+    color:white;
+    border:none;
+    padding:13px 25px;
+    border-radius:8px;
+    cursor:pointer;
+    margin-top:20px;
+}
+
+#checkoutSection{
+    display:none;
+    background:white;
+    margin:25px 7%;
+    padding:25px;
+    border-radius:15px;
+    box-shadow:0 3px 15px #ddd;
+}
+
+#checkoutSection input,
+#checkoutSection textarea{
+    width:100%;
+    padding:13px;
+    margin:10px 0;
+    border:1px solid #ddd;
+    border-radius:7px;
+}
+
+#success{
+    display:none;
+    text-align:center;
+    margin:40px 7%;
+    padding:35px;
+    background:#e9ffed;
+    border-radius:15px;
+}
+
+#success h2{
+    color:green;
+    margin-bottom:15px;
+}
+
+footer{
+    background:#222;
+    color:white;
+    text-align:center;
+    padding:30px;
+    margin-top:50px;
+}
+
+@media(max-width:600px){
+    header{
+        justify-content:center;
+    }
+    header input{
+        width:100%;
+    }
+    .hero{
+        padding:40px 20px;
+    }
+    .hero h1{
+        font-size:29px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="logo">🍔 Foodie Express</div>
+
+    <input type="text" id="search"
+    placeholder="Search food or restaurant..."
+    oninput="displayFoods()">
+
+    <button class="cart-btn" onclick="showCart()">
+        🛒 Cart (<span id="cartCount">0</span>)
+    </button>
+</header>
+
+<div class="hero">
+    <h1>Delicious Food Delivered!</h1>
+    <p>Order your favourite food from the best restaurants near you.</p>
+    <button onclick="document.getElementById('restaurants').scrollIntoView({behavior:'smooth'})">
+        Order Now →
+    </button>
+</div>
+
+<section>
+    <h2 class="section-title">What's on your mind?</h2>
+
+    <div class="categories">
+        <div class="category" onclick="filterFood('All')">
+            <span>🍽️</span>All
+        </div>
+        <div class="category" onclick="filterFood('Pizza')">
+            <span>🍕</span>Pizza
+        </div>
+        <div class="category" onclick="filterFood('Burger')">
+            <span>🍔</span>Burger
+        </div>
+        <div class="category" onclick="filterFood('Biryani')">
+            <span>🍛</span>Biryani
+        </div>
+        <div class="category" onclick="filterFood('Dessert')">
+            <span>🍰</span>Desserts
+        </div>
+        <div class="category" onclick="filterFood('Drinks')">
+            <span>🥤</span>Drinks
+        </div>
+    </div>
+</section>
+
+<section id="restaurants">
+    <h2 class="section-title">Popular Restaurants & Foods</h2>
+    <div class="food-grid" id="foodGrid"></div>
+</section>
+
+<div id="cartSection">
+    <h2 class="section-title">🛒 Your Cart</h2>
+    <div id="cartItems"></div>
+    <h3 id="total"></h3>
+    <button class="checkout" onclick="goCheckout()">
+        Proceed to Checkout →
+    </button>
+    <button class="checkout" onclick="closeCart()" style="background:#555">
+        Continue Shopping
+    </button>
+</div>
+
+<div id="checkoutSection">
+    <h2 class="section-title">📍 Delivery Details</h2>
+
+    <form onsubmit="placeOrder(event)">
+        <input type="text" id="customerName"
+        placeholder="Enter your name" required>
+
+        <input type="tel" id="phone"
+        placeholder="Enter phone number"
+        pattern="[0-9]{10}" required>
+
+        <textarea id="address"
+        placeholder="Enter your full delivery address"
+        required></textarea>
+
+        <h3 id="checkoutTotal"></h3>
+
+        <p style="margin-top:15px">
+            Payment Method: Cash on Delivery
+        </p>
+
+        <button type="submit" class="checkout">
+            Place Order
+        </button>
+    </form>
+</div>
+
+<div id="success">
+    <h2>🎉 Order Placed Successfully!</h2>
+    <p>Thank you for ordering with Foodie Express.</p>
+    <br>
+    <h3 id="orderId"></h3>
+    <p id="customerMessage"></p>
+    <br>
+    <button class="checkout" onclick="location.reload()">
+        Back to Home
+    </button>
+</div>
+
+<footer>
+    <h2>🍔 Foodie Express</h2>
+    <p>Good Food. Good Mood. Delivered With Love ❤️</p>
+    <br>
+    <p>© 2026 Foodie Express. All Rights Reserved.</p>
+</footer>
+
+<script>
+
+const foods = [
+{
+id:1,
+name:"Chicken Pizza",
+category:"Pizza",
+restaurant:"Pizza Palace",
+price:249,
+rating:"4.5 ⭐",
+image:"https://images.unsplash.com/photo-1513104890138-7c749659a591?w=600"
+},
+{
+id:2,
+name:"Cheese Burger",
+category:"Burger",
+restaurant:"Burger Hub",
+price:149,
+rating:"4.3 ⭐",
+image:"https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600"
+},
+{
+id:3,
+name:"Chicken Biryani",
+category:"Biryani",
+restaurant:"Spice Restaurant",
+price:199,
+rating:"4.7 ⭐",
+image:"https://images.unsplash.com/photo-1563379091339-03246963d96c?w=600"
+},
+{
+id:4,
+name:"Chocolate Cake",
+category:"Dessert",
+restaurant:"Sweet Treats",
+price:129,
+rating:"4.4 ⭐",
+image:"https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=600"
+},
+{
+id:5,
+name:"French Fries",
+category:"Burger",
+restaurant:"Burger Hub",
+price:99,
+rating:"4.2 ⭐",
+image:"https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=600"
+},
+{
+id:6,
+name:"Margherita Pizza",
+category:"Pizza",
+restaurant:"Pizza Palace",
+price:199,
+rating:"4.6 ⭐",
+image:"https://images.unsplash.com/photo-1571407970349-bc81e7e96d47?w=600"
+},
+{
+id:7,
+name:"Fresh Juice",
+category:"Drinks",
+restaurant:"Fresh Juice Corner",
+price:79,
+rating:"4.1 ⭐",
+image:"https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=600"
+},
+{
+id:8,
+name:"Veg Biryani",
+category:"Biryani",
+restaurant:"Spice Restaurant",
+price:159,
+rating:"4.3 ⭐",
+image:"https://images.unsplash.com/photo-1589302168068-964664d93dc0?w=600"
+}
+];
+
+let cart = [];
+let currentCategory = "All";
+
+function displayFoods(){
+
+    let search = document.getElementById("search")
+    .value.toLowerCase();
+
+    let filtered = foods.filter(food => {
+
+        let matchesCategory =
+        currentCategory === "All" ||
+        food.category === currentCategory;
+
+        let matchesSearch =
+        food.name.toLowerCase().includes(search) ||
+        food.restaurant.toLowerCase().includes(search);
+
+        return matchesCategory && matchesSearch;
+    });
+
+    let html = "";
+
+    filtered.forEach(food => {
+
+        html += `
+        <div class="food-card">
+
+            <img src="${food.image}"
+            alt="${food.name}"
+            onerror="this.src='https://placehold.co/600x400?text=Food'">
+
+            <div class="food-info">
+
+                <h3>${food.name}</h3>
+
+                <p class="restaurant">
+                ${food.restaurant}
+                </p>
+
+                <p class="rating">${food.rating}</p>
+
+                <div class="price-row">
+
+                    <b>₹${food.price}</b>
+
+                    <button class="add-btn"
+                    onclick="addToCart(${food.id})">
+                    ADD +
+                    </button>
+
+                </div>
+
+            </div>
+        </div>`;
+    });
+
+    document.getElementById("foodGrid").innerHTML =
+    html || "<p>No food found!</p>";
+}
+
+function filterFood(category){
+    currentCategory = category;
+    displayFoods();
+}
+
+function addToCart(id){
+
+    let food = foods.find(item => item.id === id);
+
+    let existing = cart.find(item => item.id === id);
+
+    if(existing){
+        existing.quantity++;
+    }else{
+        cart.push({...food,quantity:1});
+    }
+
+    updateCart();
+
+    alert(food.name + " added to cart!");
+}
+
+function updateCart(){
+
+    let count = 0;
+
+    cart.forEach(item => count += item.quantity);
+
+    document.getElementById("cartCount").innerText = count;
+
+    displayCart();
+}
+
+function displayCart(){
+
+    let html = "";
+    let total = 0;
+
+    cart.forEach(item => {
+
+        total += item.price * item.quantity;
+
+        html += `
+        <div class="cart-item">
+
+            <div>
+                <b>${item.name}</b>
+                <p>₹${item.price} × ${item.quantity}</p>
+            </div>
+
+            <div class="quantity">
+                <button onclick="changeQuantity(${item.id},-1)">−</button>
+                ${item.quantity}
+                <button onclick="changeQuantity(${item.id},1)">+</button>
+            </div>
+
+            <b>₹${item.price * item.quantity}</b>
+
+        </div>`;
+    });
+
+    document.getElementById("cartItems").innerHTML =
+    html || "<p>Your cart is empty!</p>";
+
+    document.getElementById("total").innerText =
+    "Total Amount: ₹" + total;
+}
+
+function changeQuantity(id,change){
+
+    let item = cart.find(item => item.id === id);
+
+    item.quantity += change;
+
+    if(item.quantity <= 0){
+        cart = cart.filter(item => item.id !== id);
+    }
+
+    updateCart();
+}
+
+function showCart(){
+
+    document.getElementById("cartSection").style.display = "block";
+
+    document.getElementById("checkoutSection").style.display = "none";
+
+    document.getElementById("cartSection").scrollIntoView({
+        behavior:"smooth"
+    });
+
+    displayCart();
+}
+
+function closeCart(){
+
+    document.getElementById("cartSection").style.display = "none";
+}
+
+function goCheckout(){
+
+    if(cart.length === 0){
+        alert("Please add food to your cart!");
+        return;
+    }
+
+    document.getElementById("cartSection").style.display = "none";
+
+    document.getElementById("checkoutSection").style.display = "block";
+
+    let total = cart.reduce((sum,item) =>
+    sum + item.price * item.quantity,0);
+
+    document.getElementById("checkoutTotal").innerText =
+    "Total Amount: ₹" + total;
+
+    document.getElementById("checkoutSection").scrollIntoView({
+        behavior:"smooth"
+    });
+}
+
+function placeOrder(event){
+
+    event.preventDefault();
+
+    let name = document.getElementById("customerName").value;
+
+    let phone = document.getElementById("phone").value;
+
+    let address = document.getElementById("address").value;
+
+    let orderNumber = "FE" + Date.now().toString().slice(-8);
+
+    let total = cart.reduce((sum,item) =>
+    sum + item.price * item.quantity,0);
+
+    document.getElementById("checkoutSection").style.display = "none";
+
+    document.getElementById("success").style.display = "block";
+
+    document.getElementById("orderId").innerText =
+    "Order ID: " + orderNumber;
+
+    document.getElementById("customerMessage").innerHTML =
+    "Thank you " + name +
+    "! Your order worth ₹" + total +
+    " has been placed.<br><br>" +
+    "Delivery Address: " + address +
+    "<br>Phone: " + phone +
+    "<br><br>Payment: Cash on Delivery";
+
+    cart = [];
+
+    document.getElementById("success").scrollIntoView({
+        behavior:"smooth"
+    });
+}
+
+displayFoods();
+
+</script>
+
+</body>
+</html>
